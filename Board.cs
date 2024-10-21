@@ -6,14 +6,16 @@
 //
 
 using System.Collections;
-using System.Diagnostics;
 
 namespace FourInARowGUI {
+	/// <summary>
+	/// An enumerator for the <c>Board</c> class
+	/// </summary>
+	/// 
+	/// <param name="board">A board to enumerate over</param>
 	internal class BoardEnumerator(Board board) : IEnumerator<RowType> {
 		private readonly Board _board = board;
 		private int _position = -1;
-
-		//private List<RichTextBox> Current => _board.At(_position);
 		
 		object IEnumerator.Current => _board.At(_position);
 
@@ -28,11 +30,43 @@ namespace FourInARowGUI {
 		void IEnumerator.Reset() => _position = -1;
 	}
 
+	/// <summary>
+	/// The game board
+	/// </summary>
 	public class Board: IEnumerable {
+		#region Implement IEunumerable
+
+		/// <summary>
+		/// Get an enumerator for this <c>Board</c>
+		/// </summary>
+		/// 
+		/// <returns>A new <c>BoardEnumerator</c></returns>
+		BoardEnumerator GetEnumerator() {
+			return new BoardEnumerator(this);
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return GetEnumerator();
+		}
+
+		/// <summary>
+		/// Allow adding rows to the board.
+		/// 
+		/// This method facilitates use of the collection constructor.
+		/// </summary>
+		/// 
+		/// <param name="item"></param>
+		public void Add(RowType item) => _board.Add(item);
+
+		#endregion
+
+		/// <summary> The number of rows in the board </summary>
 		public const int Rows = 6;
+
+		/// <summary> The number of columns in the board </summary>
 		public const int Columns = 6;
 
-		private BoardType _board;
+		private readonly BoardType _board;
 
 		public BoardType Data => _board;
 
@@ -64,24 +98,6 @@ namespace FourInARowGUI {
 		public Board() {
 			_board = [];
 		}
-
-		//
-		// Implement IEnumerable
-		//
-
-		BoardEnumerator GetEnumerator() {
-			return new BoardEnumerator(this);
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return GetEnumerator();
-		}
-
-		public void Add(RowType item) {
-			_board.Add(item);
-		}
-
-		// -------------------------------
 
 		/// <summary>
 		/// Create a new board from board data

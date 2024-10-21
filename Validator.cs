@@ -5,10 +5,10 @@
 // Description: Determine if someone won the game
 //
 
-using System.Diagnostics;
-using System.Reflection;
-
 namespace FourInARowGUI {
+	/// <summary>
+	/// Extensions for the <c>RichTextBox</c>
+	/// </summary>
 	public static class RichTextBoxExtentions {
 		/// <summary>
 		/// Determine if two spaces were played by the same player
@@ -19,22 +19,38 @@ namespace FourInARowGUI {
 		/// 
 		/// <returns>
 		///	<c>true</c> If <c>lhs</c> and <c>rhs</c> have both been filled and their
-		///	foreground colors are the same, <c>false</c> otherwise.
+		///	foreground colors are the same, <c>false</c> otherwise
 		///	</returns>
 		public static bool Matches(this Space lhs, Space rhs) {
 			return !lhs.IsEmpty() && !rhs.IsEmpty() && lhs.ForeColor == rhs.ForeColor;
 		}
 
+		/// <summary>
+		/// Determine if a space is empty
+		/// </summary>
+		/// 
+		/// <param name="space">The space to check</param>
+		/// 
+		/// <returns><c>true</c> if the space is empty, <c>false</c> otherwise</returns>
 		public static bool IsEmpty(this Space space) {
 			return space.Text == string.Empty;
 		}
 	}
 
+	/// <summary>
+	/// Validate wins and ties on the game board
+	/// </summary>
 	public static class Validator {
+		/// <summary>
+		/// The directions to search for pieces in
+		/// </summary>
 		public enum Directions {Left, Right, Up, Down, UpLeft, DownRight, DownLeft, UpRight};
 
 		private static int pointer = 0;
 
+		/// <summary>
+		/// The four spaces that make up the winning row
+		/// </summary>
 		public static readonly Space[] Solution = new Space[4];
 
 		/// <summary>
@@ -50,7 +66,7 @@ namespace FourInARowGUI {
 
 			for (int i = 0; i < 4; i++) {
 				pointer = 0;
-				Solution[pointer] = piece;
+				Solution[pointer] = piece; // Store this current piece first
 				int count = CountPiece(point, piece, (Directions)(i * 2), board) + CountPiece(point, piece, (Directions)(i * 2 + 1), board) + 1;
 
 				if (count == 4) {

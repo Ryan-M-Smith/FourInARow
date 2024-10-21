@@ -5,15 +5,18 @@
 // Description: The main application form
 //
 
-using System.Data.Common;
-using System.Diagnostics;
-using System.Drawing;
-
 namespace FourInARowGUI {
 	public partial class GameForm : Form {
+		/// <summary> The player's currently selected column </summary>
 		private int SelectedColumn { get; set; }
+
+		/// <summary> The turn counter </summary>
 		private int Turn { get; set; } = 0;
+
+		/// <summary> The game's running state </summary>
 		private bool GameOver { get; set; } = false;
+
+		/// <summary> The game's tie state </summary>
 		private bool IsTie { get; set; } = false;
 
 		/// <summary>
@@ -25,10 +28,15 @@ namespace FourInARowGUI {
 		/// </summary>
 		private const string _symbol = "n";
 
+		/// <summary> The internal game board representation </summary>
 		private readonly Board _board;
 
+		/// <summary> The controller that handles turn change events </summary>
 		private static readonly TurnController _turnController = new();
 
+		/// <summary>
+		/// Create a new <c>GameForm</c>
+		/// </summary>
 		public GameForm() {
 			InitializeComponent();
 
@@ -44,6 +52,13 @@ namespace FourInARowGUI {
 			_turnController.OnTurnUpdate += TakeTurn;
 		}
 
+		/// <summary>
+		/// Get the column of a <c>RichTextBox that was clicked</c>
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// 
+		/// <returns>The column index of the selected <c>RichTextBox</c></returns>
 		public int GetColumnIndex(object sender) {
 			int column = -1;
 
@@ -54,6 +69,12 @@ namespace FourInARowGUI {
 			return column;
 		}
 
+		/// <summary>
+		/// Play the next turn
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
 		private async void TakeTurn(object sender, TurnEventArgs e) {
 			if (GameOver) {
 				e.Turn--;
@@ -115,22 +136,44 @@ namespace FourInARowGUI {
 			}
 		}
 
+		/// <summary>
+		/// Highlight a column of <c>RichTextBox</c>es on hover
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
 		private void ColumnHighlight(object sender, EventArgs e) {
 			SelectedColumn = GetColumnIndex(sender);
 			var column = _board.GetColumn(SelectedColumn);
 			column.ForEach(space => space.BackColor = Color.LightGray);
 		}
 
+		/// <summary>
+		/// Remove the highlight from a previously highlighted column
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
 		private void UndoColumnHighlight(object sender, EventArgs e) {
 			SelectedColumn = GetColumnIndex(sender);
 			var column = _board.GetColumn(SelectedColumn);
 			column.ForEach(space => space.BackColor = Color.White);
 		}
 
-		private void Unfocus(object sender, EventArgs e) {
-			ActiveControl = null;
-		}
+		/// <summary>
+		/// Prevent <c>RichTextBox</c>es from being selected ("focused")
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
+		private void Unfocus(object sender, EventArgs e) => ActiveControl = null;
 
+		/// <summary>
+		/// Play a piece in a player-selected column
+		/// </summary>
+		/// 
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
 		private async void PlayColumn(object sender, EventArgs e) {
 			if (Turn % 2 != 0 || GameOver) {
 				return;
@@ -186,7 +229,7 @@ namespace FourInARowGUI {
 		/// Start the game if the play button is clicked
 		/// </summary>
 		/// <param name="sender">The object sending the event</param>
-		/// <param name="e">The event to handle</param>
+		/// <param name="e">The event arguments</param>
 		private void PlayButton_Click(object sender, EventArgs e) {
 			menuPanel.Hide();
 		}
@@ -195,16 +238,16 @@ namespace FourInARowGUI {
 		/// Quit the game if the quit button is clicked
 		/// </summary>
 		/// <param name="sender">The object sending the event</param>
-		/// <param name="e">The event to handle</param>
+		/// <param name="e">The event arguments</param>
 		private void QuitButton_Click(object sender, EventArgs e) {
 			Application.Exit();
 		}
 
 		/// <summary>
-		/// Restart the game if the button is clicked
+		/// Restart the game if the play again button is clicked
 		/// </summary>
 		/// <param name="sender">The object sending the event</param>
-		/// <param name="e">The event to handle</param>
+		/// <param name="e">The event arguments</param>
 		private void PlayAgainButton_Click(object sender, EventArgs e) {
 			GameOver = false;
 			IsTie = false;
@@ -217,6 +260,11 @@ namespace FourInARowGUI {
 			_turnController.SwitchTurns(Turn = 0);
 		}
 
+		/// <summary>
+		/// Return to the menu if the main menu button is clicked
+		/// </summary>
+		/// <param name="sender">The object sending the event</param>
+		/// <param name="e">The event arguments</param>
 		private void MenuButton_Click(object sender, EventArgs e) {
 			GameOver = false;
 			IsTie = false;
